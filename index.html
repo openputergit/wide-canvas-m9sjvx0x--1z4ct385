@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Menteaszo - Your Mental Health Companion</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #a8c0ff 0%, #3f2b96 100%);
+            min-height: 100vh;
+        }
+        .glass {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+        }
+        .feature-card:hover {
+            transform: translateY(-5px);
+            transition: all 0.3s ease;
+        }
+        .game-container {
+            perspective: 1000px;
+        }
+        .card {
+            transform-style: preserve-3d;
+            transition: transform 0.5s;
+        }
+        .card.flipped {
+            transform: rotateY(180deg);
+        }
+    </style>
+</head>
+<body class="p-4">
+    <div id="app" class="max-w-6xl mx-auto">
+        <!-- Header -->
+        <header class="glass p-6 mb-8">
+            <div class="flex justify-between items-center">
+                <h1 class="text-3xl font-bold text-white">Menteaszo</h1>
+                <nav class="hidden md:flex space-x-6">
+                    <a href="#" class="text-white hover:text-blue-200">Home</a>
+                    <a href="#" class="text-white hover:text-blue-200">Features</a>
+                    <a href="#" class="text-white hover:text-blue-200">Community</a>
+                    <a href="#" class="text-white hover:text-blue-200">Resources</a>
+                </nav>
+                <button @click="toggleMenu" class="md:hidden text-white">
+                    <i class="bi bi-list text-2xl"></i>
+                </button>
+            </div>
+            <div v-if="showMenu" class="md:hidden mt-4 space-y-2">
+                <a href="#" class="block text-white hover:text-blue-200">Home</a>
+                <a href="#" class="block text-white hover:text-blue-200">Features</a>
+                <a href="#" class="block text-white hover:text-blue-200">Community</a>
+                <a href="#" class="block text-white hover:text-blue-200">Resources</a>
+            </div>
+        </header>
+
+        <!-- AI Chat Section -->
+        <section class="glass p-6 mb-8">
+            <div class="chat-container h-[400px] overflow-y-auto mb-4">
+                <div v-for="message in chatMessages" :class="message.type === 'user' ? 'text-right' : 'text-left'" class="mb-4">
+                    <div :class="message.type === 'user' ? 'bg-blue-500 ml-auto' : 'bg-gray-600'" class="inline-block p-3 rounded-lg text-white max-w-[80%]">
+                        {{ message.text }}
+                    </div>
+                </div>
+            </div>
+            <div class="flex gap-2">
+                <input v-model="newMessage" @keyup.enter="sendMessage" type="text" placeholder="Type your message..." class="flex-1 p-2 rounded-lg bg-white/10 text-white placeholder-white/50 border border-white/20">
+                <button @click="sendMessage" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">
+                    <i class="bi bi-send"></i>
+                </button>
+            </div>
+        </section>
+
+        <!-- Mental Health Games -->
+        <section class="glass p-6 mb-8">
+            <h2 class="text-2xl font-bold text-white mb-4">Mental Health Games</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div v-for="(card, index) in memoryCards" 
+                     :key="index" 
+                     @click="flipCard(index)"
+                     class="game-container">
+                    <div :class="['card', card.isFlipped ? 'flipped' : '']"
+                         class="h-32 cursor-pointer glass">
+                        <div class="absolute w-full h-full flex items-center justify-center text-white">
+                            <span v-if="!card.isFlipped">?</span>
+                            <span v-else>{{ card.emoji }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Features Grid -->
+        <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+            <div v-for="feature in features" class="glass p-6 feature-card">
+                <i :class="feature.icon" class="text-3xl text-white mb-4"></i>
+                <h3 class="text-xl font-bold text-white mb-2">{{ feature.title }}</h3>
+                <p class="text-white/80">{{ feature.description }}</p>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        const { createApp } = Vue
+
+        createApp({
+            data() {
+                return {
+                    showMenu: false,
+                    newMessage: '',
+                    chatMessages: [
+                        { type: 'ai', text: 'Hello! I\'m your Menteaszo AI companion. How are you feeling today?' }
+                    ],
+                    features: [
+                        {
+                            icon: 'bi bi-chat-heart',
+                            title: 'AI Friend Support',
+                            description: 'Get emotional support and guidance from our empathetic AI companion.'
+                        },
+                        {
+                            icon: 'bi bi-people',
+                            title: 'Anonymous Community',
+                            description: 'Connect with others and share experiences in a safe, judgment-free space.'
+                        },
+                        {
+                            icon: 'bi bi-wind',
+                            title: 'Mental Detox',
+                            description: 'Take control of your digital wellness with our innovative detox tools.'
+                        }
+                    ],
+                    memoryCards: Array(6).fill().map((_, i) => ({
+                        emoji: ['😊', '😎', '🎮', '🌟', '🎯', '🎨'][i],
+                        isFlipped: false,
+                        isMatched: false
+                    })),
+                    flippedCards: [],
+                }
+            },
+            methods: {
+                toggleMenu() {
+                    this.showMenu = !this.showMenu
+                },
+                sendMessage() {
+                    if (this.newMessage.trim()) {
+                        this.chatMessages.push({
+                            type: 'user',
+                            text: this.newMessage
+                        })
+                        
+                        // Simulate AI response
+                        setTimeout(() => {
+                            this.chatMessages.push({
+                                type: 'ai',
+                                text: `I understand how you're feeling. Let's work through this together.`
+                            })
+                        }, 1000)
+                        
+                        this.newMessage = ''
+                    }
+                },
+                flipCard(index) {
+                    if (this.flippedCards.length === 2) return
+                    if (this.memoryCards[index].isMatched) return
+                    if (this.memoryCards[index].isFlipped) return
+
+                    this.memoryCards[index].isFlipped = true
+                    this.flippedCards.push(index)
+
+                    if (this.flippedCards.length === 2) {
+                        setTimeout(() => {
+                            const [first, second] = this.flippedCards
+                            if (this.memoryCards[first].emoji === this.memoryCards[second].emoji) {
+                                this.memoryCards[first].isMatched = true
+                                this.memoryCards[second].isMatched = true
+                            } else {
+                                this.memoryCards[first].isFlipped = false
+                                this.memoryCards[second].isFlipped = false
+                            }
+                            this.flippedCards = []
+                        }, 1000)
+                    }
+                }
+            }
+        }).mount('#app')
+    </script>
+<script>document.body.addEventListener('wheel', e => { if (!e.ctrlKey) return; e.preventDefault(); return }, { passive: false })</script>
+	</body>
+</html>
